@@ -17,6 +17,10 @@ class epco:
     https://setsuden.tohoku-epco.co.jp/.
     The Tokyo area provides monthly ZIP archives at
     https://www.tepco.co.jp/forecast/.
+    The landing page for the Hokuriku area is
+    https://www.rikuden.co.jp/nw/denki-yoho/index.html.
+    The landing page for the Chugoku area is
+    https://www.energia.co.jp/nw/jukyuu/index.html.
     """
 
     BASE_URLS = {
@@ -24,7 +28,8 @@ class epco:
         "tohoku": "https://setsuden.nw.tohoku-epco.co.jp/",
         "tokyo": "https://www.tepco.co.jp/forecast/",
         "chubu": "https://powergrid.chuden.co.jp/denkiyoho/",
-        "hokuriku": "https://www.rikuden.co.jp/nw/denki-yoho/csv/",
+        "hokuriku": "https://www.rikuden.co.jp/nw/denki-yoho/csv/",  # Landing page: https://www.rikuden.co.jp/nw/denki-yoho/index.html
+        # Chugoku landing page: https://www.energia.co.jp/nw/jukyuu/index.html
     }
 
     def juyo(self, date, area="hokkaido"):
