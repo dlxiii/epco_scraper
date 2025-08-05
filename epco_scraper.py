@@ -15,11 +15,14 @@ class epco:
     https://denkiyoho.hepco.co.jp/area_download.html.
     The Tohoku area provides yearly CSV files at
     https://setsuden.tohoku-epco.co.jp/.
+    The Tokyo area provides monthly ZIP archives at
+    https://www.tepco.co.jp/forecast/.
     """
 
     BASE_URLS = {
         "hokkaido": "https://denkiyoho.hepco.co.jp/",
         "tohoku": "https://setsuden.nw.tohoku-epco.co.jp/",
+        "tokyo": "https://www.tepco.co.jp/forecast/",
     }
 
     def juyo(self, date, area="hokkaido"):
@@ -31,7 +34,8 @@ class epco:
             Date used to determine which dataset to download. An ISO formatted
             string (``YYYY-MM-DD``) is also accepted.
         area : str, optional
-            Electricity area. Supports ``"hokkaido"`` and ``"tohoku"``.
+            Electricity area. Supports ``"hokkaido"``, ``"tohoku"``, and
+            ``"tokyo"``.
 
         Returns
         -------
@@ -73,33 +77,35 @@ class epco:
                 dst.write(cleaned)
             return [str(dest_path)]
 
-        start_months = {1: 1, 2: 1, 3: 1, 4: 4, 5: 4, 6: 4, 7: 7, 8: 7, 9: 7, 10: 10, 11: 10, 12: 10}
-        end_months = {1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 6, 7: 9, 8: 9, 9: 9, 10: 12, 11: 12, 12: 12}
+        if area == "tokyo":
+            filename = f"{year}{date.month:02d}_power_usage.zip"
+            zip_url = urljoin(base_url, f"html/images/{filename}")
+        else:
+            start_months = {1: 1, 2: 1, 3: 1, 4: 4, 5: 4, 6: 4, 7: 7, 8: 7, 9: 7, 10: 10, 11: 10, 12: 10}
+            end_months = {1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 6, 7: 9, 8: 9, 9: 9, 10: 12, 11: 12, 12: 12}
 
-        start_month = start_months[date.month]
-        end_month = end_months[date.month]
+            start_month = start_months[date.month]
+            end_month = end_months[date.month]
 
-        filename = f"{year}{start_month:02d}-{end_month:02d}_{area}_denkiyohou.zip"
+            filename = f"{year}{start_month:02d}-{end_month:02d}_{area}_denkiyohou.zip"
 
-        page_url = urljoin(base_url, "area_download.html")
-        res = requests.get(page_url)
-        res.raise_for_status()
-        html = res.text
+            page_url = urljoin(base_url, "area_download.html")
+            res = requests.get(page_url)
+            res.raise_for_status()
+            html = res.text
 
-        pattern = re.escape(f"area/data/zip/{filename}")
-        match = re.search(pattern, html)
-        if not match:
-            raise ValueError(f"No data link found for {date}")
-        href = match.group(0)
-        zip_url = urljoin(base_url, href)
+            pattern = re.escape(f"area/data/zip/{filename}")
+            match = re.search(pattern, html)
+            if not match:
+                raise ValueError(f"No data link found for {date}")
+            href = match.group(0)
+            zip_url = urljoin(base_url, href)
 
-        zres = requests.get(zip_url)
+        zres = requests.get(zip_url, headers={"User-Agent": "Mozilla/5.0"})
         zres.raise_for_status()
 
-        if area == "hokkaido":
-            area_path = "hok"
-        else:
-            area_path = area
+        area_map = {"hokkaido": "hok", "tokyo": "tok"}
+        area_path = area_map.get(area, area)
         target_dir = Path("csv") / "juyo" / area_path / f"{year}"
         target_dir.mkdir(parents=True, exist_ok=True)
 
