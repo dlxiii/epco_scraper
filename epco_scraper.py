@@ -63,16 +63,19 @@ class epco:
             Paths to the extracted CSV files. For the Hokkaido area files are
             saved under ``csv/juyo/hok/YYYY`` where ``YYYY`` is the calendar
             year with empty lines removed. For the Tohoku area files are saved
-            under ``csv/juyo/toh`` with empty lines removed. For the Chubu area
-            files are saved under ``csv/juyo/chb/YYYY`` with empty lines removed.
-            For the Chugoku area files are saved under ``csv/juyo/cgk/YYYY`` with
-            empty lines removed. For the Kansai area files are saved under
-            ``csv/juyo/kas/YYYY`` with empty lines removed. For the Hokuriku area
-            files are saved under ``csv/hrk/YYYY`` with empty lines removed. For
-            the Shikoku area files are saved under ``csv/juyo/shi`` with empty
-            lines removed. For the Kyushu area files are saved under
-            ``csv/juyo/kyu/YYYY`` with empty lines removed. For the Okinawa area
-            files are saved under ``csv/juyo/oki/YYYY`` with empty lines removed.
+            under ``csv/juyo/toh`` with empty lines removed. For the Tokyo area
+            files are saved under ``csv/juyo/tok/YYYY`` with empty lines removed;
+            for dates before ``2022-04-01`` they are saved directly under
+            ``csv/juyo/tok``. For the Chubu area files are saved under
+            ``csv/juyo/chb/YYYY`` with empty lines removed. For the Chugoku area
+            files are saved under ``csv/juyo/cgk/YYYY`` with empty lines removed.
+            For the Kansai area files are saved under ``csv/juyo/kas/YYYY`` with
+            empty lines removed. For the Hokuriku area files are saved under
+            ``csv/hrk/YYYY`` with empty lines removed. For the Shikoku area
+            files are saved under ``csv/juyo/shi`` with empty lines removed. For
+            the Kyushu area files are saved under ``csv/juyo/kyu/YYYY`` with
+            empty lines removed. For the Okinawa area files are saved under
+            ``csv/juyo/oki/YYYY`` with empty lines removed.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -203,7 +206,7 @@ class epco:
                 res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
                 res.raise_for_status()
 
-                target_dir = Path("csv") / "juyo" / "tok" / f"{year}"
+                target_dir = Path("csv") / "juyo" / "tok"
                 target_dir.mkdir(parents=True, exist_ok=True)
                 dest_path = target_dir / csv_name
 
