@@ -31,7 +31,7 @@ class epco:
         "tokyo": "https://www.tepco.co.jp/forecast/",
         "chubu": "https://powergrid.chuden.co.jp/denkiyoho/",
         "hokuriku": "https://www.rikuden.co.jp/nw/denki-yoho/csv/",
-        "kansai": "https://www.kansai-td.co.jp/denkiyoho/download/",
+        "kansai": "https://www.kansai-td.co.jp/",
     }
 
     def juyo(self, date, area="hokkaido"):
