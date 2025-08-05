@@ -10,7 +10,11 @@ import chardet
 
 
 class epco:
-    """Scraper for EPCO electricity usage data."""
+    """Scraper for EPCO electricity usage data.
+
+    The landing page for the Hokkaido area is
+    https://denkiyoho.hepco.co.jp/area_download.html.
+    """
 
     BASE_URL = "https://denkiyoho.hepco.co.jp/"
 
