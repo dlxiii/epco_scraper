@@ -23,6 +23,7 @@ class epco:
         "hokkaido": "https://denkiyoho.hepco.co.jp/",
         "tohoku": "https://setsuden.nw.tohoku-epco.co.jp/",
         "tokyo": "https://www.tepco.co.jp/forecast/",
+        "chubu": "https://powergrid.chuden.jp/",
     }
 
     def juyo(self, date, area="hokkaido"):
@@ -34,8 +35,8 @@ class epco:
             Date used to determine which dataset to download. An ISO formatted
             string (``YYYY-MM-DD``) is also accepted.
         area : str, optional
-            Electricity area. Supports ``"hokkaido"``, ``"tohoku"``, and
-            ``"tokyo"``.
+            Electricity area. Supports ``"hokkaido"``, ``"tohoku"``,
+            ``"tokyo"``, and ``"chubu"``.
 
         Returns
         -------
@@ -80,6 +81,9 @@ class epco:
         if area == "tokyo":
             filename = f"{year}{date.month:02d}_power_usage.zip"
             zip_url = urljoin(base_url, f"html/images/{filename}")
+        elif area == "chubu":
+            filename = f"{year}{date.month:02d}_power_usage.zip"
+            zip_url = urljoin(base_url, f"denki_yoho_content_data/download_csv/{filename}")
         else:
             start_months = {1: 1, 2: 1, 3: 1, 4: 4, 5: 4, 6: 4, 7: 7, 8: 7, 9: 7, 10: 10, 11: 10, 12: 10}
             end_months = {1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 6, 7: 9, 8: 9, 9: 9, 10: 12, 11: 12, 12: 12}
@@ -104,7 +108,7 @@ class epco:
         zres = requests.get(zip_url, headers={"User-Agent": "Mozilla/5.0"})
         zres.raise_for_status()
 
-        area_map = {"hokkaido": "hok", "tokyo": "tok"}
+        area_map = {"hokkaido": "hok", "tokyo": "tok", "chubu": "chb"}
         area_path = area_map.get(area, area)
         target_dir = Path("csv") / "juyo" / area_path / f"{year}"
         target_dir.mkdir(parents=True, exist_ok=True)
@@ -140,6 +144,9 @@ class epco:
                         cleaned.append(lines[i])
                         i += 1
                     text = "\n".join(cleaned) + "\n"
+                elif area == "chubu":
+                    lines = [line for line in text.splitlines() if line.strip()]
+                    text = "\n".join(lines) + "\n"
                 with open(dest_path, "w", encoding="utf-8") as dst:
                     dst.write(text)
                 extracted_files.append(str(dest_path))
