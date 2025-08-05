@@ -38,7 +38,8 @@ class epco:
         list[str]
             Paths to the extracted CSV files. For the Hokkaido area files are
             saved under ``csv/juyo/area/YYYY`` where ``YYYY`` is the calendar
-            year. For the Tohoku area files are saved under ``csv/toh``.
+            year. For the Tohoku area files are saved under ``csv/toh`` with
+            empty lines removed.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -65,8 +66,11 @@ class epco:
 
             encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
             text = res.content.decode(encoding)
+            # Remove empty lines from the CSV text
+            lines = [line for line in text.splitlines() if line.strip()]
+            cleaned = "\n".join(lines) + "\n"
             with open(dest_path, "w", encoding="utf-8") as dst:
-                dst.write(text)
+                dst.write(cleaned)
             return [str(dest_path)]
 
         start_months = {1: 1, 2: 1, 3: 1, 4: 4, 5: 4, 6: 4, 7: 7, 8: 7, 9: 7, 10: 10, 11: 10, 12: 10}
