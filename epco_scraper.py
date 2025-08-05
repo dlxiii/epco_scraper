@@ -25,6 +25,8 @@ class epco:
     https://www.kansai-td.co.jp/denkiyoho/download/.
     The landing page for the Shikoku area is
     https://www.yonden.co.jp/nw/denkiyoho/download.html.
+    The landing page for the Kyushu area is
+    https://www.kyuden.co.jp/td_power_usages/.
     """
 
     BASE_URLS = {
@@ -35,6 +37,7 @@ class epco:
         "hokuriku": "https://www.rikuden.co.jp/nw/denki-yoho/csv/",
         "kansai": "https://www.kansai-td.co.jp/",
         "shikoku": "https://www.yonden.co.jp/nw/denkiyoho/csv/",
+        "kyushu": "https://www.kyuden.co.jp/td_power_usages/csv/",
     }
 
     def juyo(self, date, area="hokkaido"):
@@ -47,7 +50,8 @@ class epco:
             string (``YYYY-MM-DD``) is also accepted.
         area : str, optional
             Electricity area. Supports ``"hokkaido"``, ``"tohoku"``, ``"tokyo"``,
-            ``"chubu"``, ``"kansai"``, ``"hokuriku"``, and ``"shikoku"``.
+            ``"chubu"``, ``"kansai"``, ``"hokuriku"``, ``"shikoku"``, and
+            ``"kyushu"``.
 
         Returns
         -------
@@ -60,7 +64,9 @@ class epco:
             For the Kansai area files are saved under ``csv/juyo/kas/YYYY`` with
             empty lines removed. For the Hokuriku area files are saved under
             ``csv/hrk/YYYY`` with empty lines removed. For the Shikoku area
-            files are saved under ``csv/juyo/shi`` with empty lines removed.
+            files are saved under ``csv/juyo/shi`` with empty lines removed. For
+            the Kyushu area files are saved under ``csv/juyo/kyu/YYYY`` with
+            empty lines removed.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -101,6 +107,24 @@ class epco:
             res.raise_for_status()
 
             target_dir = Path("csv") / "juyo" / "shi"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dest_path = target_dir / csv_name
+
+            encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
+            text = res.content.decode(encoding)
+            lines = [line for line in text.splitlines() if line.strip()]
+            cleaned = "\n".join(lines) + "\n"
+            with open(dest_path, "w", encoding="utf-8") as dst:
+                dst.write(cleaned)
+            return [str(dest_path)]
+
+        if area == "kyushu":
+            csv_name = f"juyo-hourly-{date:%Y%m%d}.csv"
+            csv_url = urljoin(base_url, csv_name)
+            res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
+            res.raise_for_status()
+
+            target_dir = Path("csv") / "juyo" / "kyu" / f"{year}"
             target_dir.mkdir(parents=True, exist_ok=True)
             dest_path = target_dir / csv_name
 
