@@ -41,9 +41,9 @@ class epco:
         -------
         list[str]
             Paths to the extracted CSV files. For the Hokkaido area files are
-            saved under ``csv/juyo/area/YYYY`` where ``YYYY`` is the calendar
-            year. For the Tohoku area files are saved under ``csv/toh`` with
-            empty lines removed.
+            saved under ``csv/juyo/hok/YYYY`` where ``YYYY`` is the calendar
+            year with empty lines removed. For the Tohoku area files are saved
+            under ``csv/juyo/toh`` with empty lines removed.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -140,6 +140,10 @@ class epco:
                         cleaned.append(lines[i])
                         i += 1
                     text = "\n".join(cleaned) + "\n"
+                elif area == "hokkaido":
+                    # Remove all empty lines
+                    lines = [line for line in text.splitlines() if line.strip()]
+                    text = "\n".join(lines) + "\n"
                 with open(dest_path, "w", encoding="utf-8") as dst:
                     dst.write(text)
                 extracted_files.append(str(dest_path))
