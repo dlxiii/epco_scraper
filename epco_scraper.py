@@ -28,8 +28,7 @@ class epco:
         -------
         list[str]
             Paths to the extracted CSV files. Files are saved under
-            ``csv/juyo/area/YYYY`` where ``YYYY`` is the fiscal year starting
-            in April.
+            ``csv/juyo/area/YYYY`` where ``YYYY`` is the calendar year.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -44,7 +43,6 @@ class epco:
         start_month = start_months[date.month]
         end_month = end_months[date.month]
         year = date.year
-        fiscal_year = year if date.month >= 4 else year - 1
 
         filename = f"{year}{start_month:02d}-{end_month:02d}_{area}_denkiyohou.zip"
 
@@ -67,7 +65,7 @@ class epco:
             area_path = "hok"
         else:
             area_path = area
-        target_dir = Path("csv") / "juyo" / area_path / f"{fiscal_year}"
+        target_dir = Path("csv") / "juyo" / area_path / f"{year}"
         target_dir.mkdir(parents=True, exist_ok=True)
 
         extracted_files: list[str] = []
