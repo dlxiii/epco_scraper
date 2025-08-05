@@ -3,7 +3,6 @@ import re
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import urljoin
-import shutil
 import requests
 from zipfile import ZipFile
 import chardet
@@ -14,9 +13,14 @@ class epco:
 
     The landing page for the Hokkaido area is
     https://denkiyoho.hepco.co.jp/area_download.html.
+    The Tohoku area provides yearly CSV files at
+    https://setsuden.tohoku-epco.co.jp/.
     """
 
-    BASE_URL = "https://denkiyoho.hepco.co.jp/"
+    BASE_URLS = {
+        "hokkaido": "https://denkiyoho.hepco.co.jp/",
+        "tohoku": "https://setsuden.tohoku-epco.co.jp/",
+    }
 
     def juyo(self, date, area="hokkaido"):
         """Download and extract electricity usage data.
@@ -27,13 +31,14 @@ class epco:
             Date used to determine which dataset to download. An ISO formatted
             string (``YYYY-MM-DD``) is also accepted.
         area : str, optional
-            Electricity area. Currently only ``"hokkaido"`` is supported.
+            Electricity area. Supports ``"hokkaido"`` and ``"tohoku"``.
 
         Returns
         -------
         list[str]
-            Paths to the extracted CSV files. Files are saved under
-            ``csv/juyo/area/YYYY`` where ``YYYY`` is the calendar year.
+            Paths to the extracted CSV files. For the Hokkaido area files are
+            saved under ``csv/juyo/area/YYYY`` where ``YYYY`` is the calendar
+            year. For the Tohoku area files are saved under ``csv/toh``.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -42,16 +47,37 @@ class epco:
         elif not isinstance(date, dt.date):
             raise TypeError("date must be a date, datetime, or ISO format string")
 
+        base_url = self.BASE_URLS.get(area)
+        if base_url is None:
+            raise ValueError(f"Unsupported area: {area}")
+
+        year = date.year
+
+        if area == "tohoku":
+            csv_name = f"juyo_{year}_tohoku.csv"
+            csv_url = urljoin(base_url, f"common/demand/{csv_name}")
+            res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
+            res.raise_for_status()
+
+            target_dir = Path("csv") / "toh"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dest_path = target_dir / csv_name
+
+            encoding = (chardet.detect(res.content).get("encoding") or "").lower()
+            text = res.content.decode(encoding)
+            with open(dest_path, "w", encoding="utf-8") as dst:
+                dst.write(text)
+            return [str(dest_path)]
+
         start_months = {1: 1, 2: 1, 3: 1, 4: 4, 5: 4, 6: 4, 7: 7, 8: 7, 9: 7, 10: 10, 11: 10, 12: 10}
         end_months = {1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 6, 7: 9, 8: 9, 9: 9, 10: 12, 11: 12, 12: 12}
 
         start_month = start_months[date.month]
         end_month = end_months[date.month]
-        year = date.year
 
         filename = f"{year}{start_month:02d}-{end_month:02d}_{area}_denkiyohou.zip"
 
-        page_url = urljoin(self.BASE_URL, "area_download.html")
+        page_url = urljoin(base_url, "area_download.html")
         res = requests.get(page_url)
         res.raise_for_status()
         html = res.text
@@ -61,7 +87,7 @@ class epco:
         if not match:
             raise ValueError(f"No data link found for {date}")
         href = match.group(0)
-        zip_url = urljoin(self.BASE_URL, href)
+        zip_url = urljoin(base_url, href)
 
         zres = requests.get(zip_url)
         zres.raise_for_status()
