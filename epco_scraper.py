@@ -197,6 +197,24 @@ class epco:
             return [str(dest_path)]
 
         if area == "tokyo":
+            if date < dt.date(2022, 4, 1):
+                csv_name = f"juyo-{year}.csv"
+                csv_url = urljoin(base_url, f"html/images/{csv_name}")
+                res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
+                res.raise_for_status()
+
+                target_dir = Path("csv") / "juyo" / "tok" / f"{year}"
+                target_dir.mkdir(parents=True, exist_ok=True)
+                dest_path = target_dir / csv_name
+
+                encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
+                text = res.content.decode(encoding)
+                lines = [line for line in text.splitlines() if line.strip()]
+                cleaned = "\n".join(lines) + "\n"
+                with open(dest_path, "w", encoding="utf-8") as dst:
+                    dst.write(cleaned)
+                return [str(dest_path)]
+
             filename = f"{year}{date.month:02d}_power_usage.zip"
             zip_url = urljoin(base_url, f"html/images/{filename}")
         elif area == "chubu":
