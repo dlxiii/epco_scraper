@@ -121,6 +121,25 @@ class epco:
 
                 encoding = (chardet.detect(data).get("encoding") or "").lower()
                 text = data.decode(encoding)
+                if area == "tokyo":
+                    # Remove only single blank lines while keeping groups of
+                    # consecutive blank lines intact. This avoids altering
+                    # blocks that use multiple blank lines as separators.
+                    lines = text.splitlines()
+                    cleaned: list[str] = []
+                    i = 0
+                    while i < len(lines):
+                        if not lines[i].strip():
+                            j = i
+                            while j < len(lines) and not lines[j].strip():
+                                j += 1
+                            if j - i > 1:
+                                cleaned.extend([""] * (j - i))
+                            i = j
+                            continue
+                        cleaned.append(lines[i])
+                        i += 1
+                    text = "\n".join(cleaned) + "\n"
                 with open(dest_path, "w", encoding="utf-8") as dst:
                     dst.write(text)
                 extracted_files.append(str(dest_path))
