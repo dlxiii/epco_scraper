@@ -80,18 +80,21 @@ class epco:
                     data = src.read()
 
                 encoding = (chardet.detect(data).get("encoding") or "").lower()
-                if encoding.replace("-", "") in {"shiftjis", "cp932"}:
-                    text = data.decode(encoding)
-                    with open(dest_path, "w", encoding="utf-8") as dst:
-                        dst.write(text)
-                else:
-                    with open(dest_path, "wb") as dst:
-                        dst.write(data)
+                text = data.decode(encoding)
+                with open(dest_path, "w", encoding="utf-8") as dst:
+                    dst.write(text)
                 extracted_files.append(str(dest_path))
 
         return extracted_files
 
 
 if __name__ == "__main__":
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+
     scraper = epco()
-    print(scraper.juyo(dt.date.today(), "hokkaido"))
+
+    for k in range(22):
+        months_ago = date.today() - relativedelta(months=3 * k)
+        result = scraper.juyo(months_ago, "hokkaido")
+        print(f"{months_ago}: {result}")
