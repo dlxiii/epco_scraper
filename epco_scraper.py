@@ -19,7 +19,7 @@ class epco:
 
     BASE_URLS = {
         "hokkaido": "https://denkiyoho.hepco.co.jp/",
-        "tohoku": "https://setsuden.tohoku-epco.co.jp/",
+        "tohoku": "https://setsuden.nw.tohoku-epco.co.jp/",
     }
 
     def juyo(self, date, area="hokkaido"):
@@ -124,7 +124,12 @@ if __name__ == "__main__":
 
     scraper = epco()
 
-    for k in range(22):
-        months_ago = date.today() - relativedelta(months=3 * k)
-        result = scraper.juyo(months_ago, "hokkaido")
+    for k in range(1):
+        months_ago = date.today() - relativedelta(months=12 * k)
+        result = scraper.juyo(months_ago, "tohoku")
         print(f"{months_ago}: {result}")
+
+    # for k in range(1):
+    #     months_ago = date.today() - relativedelta(months=3 * k)
+    #     result = scraper.juyo(months_ago, "hokkaido")
+    #     print(f"{months_ago}: {result}")
