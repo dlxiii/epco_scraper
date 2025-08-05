@@ -60,7 +60,11 @@ class epco:
         zres = requests.get(zip_url)
         zres.raise_for_status()
 
-        target_dir = Path("csv") / "juyo" / f"{year}"
+        if area == "hokkaido":
+            area_path = "hok"
+        else:
+            area_path = area
+        target_dir = Path("csv") / "juyo" / area_path / f"{year}"
         target_dir.mkdir(parents=True, exist_ok=True)
 
         extracted_files: list[str] = []
