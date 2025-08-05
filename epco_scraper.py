@@ -194,10 +194,15 @@ if __name__ == "__main__":
 
     scraper = epco()
 
-    for k in range(365*10):
-        months_ago = date.today() - relativedelta(days=1 * k)
-        result = scraper.juyo(months_ago, "hokuriku")
+    for k in range(120):
+        months_ago = date.today() - relativedelta(months=1 * k)
+        result = scraper.juyo(months_ago, "kansai")
         print(f"{months_ago}: {result}")
+
+    # for k in range(365*10):
+    #     months_ago = date.today() - relativedelta(days=1 * k)
+    #     result = scraper.juyo(months_ago, "hokuriku")
+    #     print(f"{months_ago}: {result}")
 
     # for k in range(84):
     #     months_ago = date.today() - relativedelta(months=1 * k)
