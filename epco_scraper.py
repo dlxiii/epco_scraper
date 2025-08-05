@@ -63,8 +63,10 @@ class epco:
             target_dir.mkdir(parents=True, exist_ok=True)
             dest_path = target_dir / csv_name
 
-            with open(dest_path, "wb") as dst:
-                dst.write(res.content)
+            encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
+            text = res.content.decode(encoding)
+            with open(dest_path, "w", encoding="utf-8") as dst:
+                dst.write(text)
             return [str(dest_path)]
 
         start_months = {1: 1, 2: 1, 3: 1, 4: 4, 5: 4, 6: 4, 7: 7, 8: 7, 9: 7, 10: 10, 11: 10, 12: 10}
