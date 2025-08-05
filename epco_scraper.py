@@ -24,6 +24,7 @@ class epco:
         "tohoku": "https://setsuden.nw.tohoku-epco.co.jp/",
         "tokyo": "https://www.tepco.co.jp/forecast/",
         "chubu": "https://powergrid.chuden.co.jp/denkiyoho/",
+        "hokuriku": "https://www.rikuden.co.jp/nw/denki-yoho/csv/",
     }
 
     def juyo(self, date, area="hokkaido"):
@@ -36,7 +37,7 @@ class epco:
             string (``YYYY-MM-DD``) is also accepted.
         area : str, optional
             Electricity area. Supports ``"hokkaido"``, ``"tohoku"``, ``"tokyo"``,
-            and ``"chubu"``.
+            ``"chubu"``, and ``"hokuriku"``.
 
         Returns
         -------
@@ -46,6 +47,8 @@ class epco:
             year with empty lines removed. For the Tohoku area files are saved
             under ``csv/juyo/toh`` with empty lines removed. For the Chubu area
             files are saved under ``csv/juyo/chb/YYYY`` with empty lines removed.
+            For the Hokuriku area files are saved under ``csv/hrk/YYYY`` with
+            empty lines removed.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -73,6 +76,24 @@ class epco:
             encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
             text = res.content.decode(encoding)
             # Remove empty lines from the CSV text
+            lines = [line for line in text.splitlines() if line.strip()]
+            cleaned = "\n".join(lines) + "\n"
+            with open(dest_path, "w", encoding="utf-8") as dst:
+                dst.write(cleaned)
+            return [str(dest_path)]
+
+        if area == "hokuriku":
+            csv_name = f"juyo_05_{date:%Y%m%d}.csv"
+            csv_url = urljoin(base_url, csv_name)
+            res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
+            res.raise_for_status()
+
+            target_dir = Path("csv") / "hrk" / f"{year}"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dest_path = target_dir / csv_name
+
+            encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
+            text = res.content.decode(encoding)
             lines = [line for line in text.splitlines() if line.strip()]
             cleaned = "\n".join(lines) + "\n"
             with open(dest_path, "w", encoding="utf-8") as dst:
@@ -161,6 +182,11 @@ if __name__ == "__main__":
     from dateutil.relativedelta import relativedelta
 
     scraper = epco()
+
+    for k in range(84):
+        months_ago = date.today() - relativedelta(months=1 * k)
+        result = scraper.juyo(months_ago, "chubu")
+        print(f"{months_ago}: {result}")
 
     # for k in range(48):
     #     months_ago = date.today() - relativedelta(months=1 * k)
