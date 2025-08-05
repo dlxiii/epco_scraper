@@ -8,6 +8,23 @@ from zipfile import ZipFile
 import chardet
 
 
+# Earliest available year for each region based on existing CSV files.
+# | Region   | Earliest Year |
+# |----------|---------------|
+# | hokkaido | 2020          |
+# | tohoku   | 2015          |
+# | tokyo    | 2008          |
+# | chubu    | 2019          |
+# | chugoku  | 2019          |
+# | hokuriku | 2019          |
+# | kansai   | 2016          |
+# | shikoku  | 2016          |
+# | kyushu   | 2012          |
+# | okinawa  | 2016          |
+#
+# TODO: Fill in data for earlier years where available.
+
+
 class epco:
     """Scraper for EPCO electricity usage data.
 
