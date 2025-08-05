@@ -64,7 +64,7 @@ class epco:
             res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
             res.raise_for_status()
 
-            target_dir = Path("csv") / "toh"
+            target_dir = Path("csv") / "juyo" / "toh"
             target_dir.mkdir(parents=True, exist_ok=True)
             dest_path = target_dir / csv_name
 
