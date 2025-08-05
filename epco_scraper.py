@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 import shutil
 import requests
 from zipfile import ZipFile
+import chardet
 
 
 class epco:
@@ -75,8 +76,17 @@ class epco:
                     continue
                 name = Path(member.filename).name
                 dest_path = target_dir / name
-                with zf.open(member) as src, open(dest_path, "wb") as dst:
-                    shutil.copyfileobj(src, dst)
+                with zf.open(member) as src:
+                    data = src.read()
+
+                encoding = (chardet.detect(data).get("encoding") or "").lower()
+                if encoding.replace("-", "") in {"shiftjis", "cp932"}:
+                    text = data.decode(encoding)
+                    with open(dest_path, "w", encoding="utf-8") as dst:
+                        dst.write(text)
+                else:
+                    with open(dest_path, "wb") as dst:
+                        dst.write(data)
                 extracted_files.append(str(dest_path))
 
         return extracted_files
