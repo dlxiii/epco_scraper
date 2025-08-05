@@ -1,0 +1,19 @@
+name: EPCO scraper
+
+on:
+  schedule:
+    - cron: "0 16 * * *"  # 1 AM JST
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Tokyo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - run: pip install -r requirements.txt
+      - run: python run_epco_juyo.py
