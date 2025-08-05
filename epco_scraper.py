@@ -36,6 +36,7 @@ class epco:
         "tohoku": "https://setsuden.nw.tohoku-epco.co.jp/",
         "tokyo": "https://www.tepco.co.jp/forecast/",
         "chubu": "https://powergrid.chuden.co.jp/denkiyoho/",
+        "chugoku": "https://www.energia.co.jp/nw/jukyuu/sys/",
         "hokuriku": "https://www.rikuden.co.jp/nw/denki-yoho/csv/",
         "kansai": "https://www.kansai-td.co.jp/",
         "shikoku": "https://www.yonden.co.jp/nw/denkiyoho/csv/",
@@ -53,8 +54,8 @@ class epco:
             string (``YYYY-MM-DD``) is also accepted.
         area : str, optional
             Electricity area. Supports ``"hokkaido"``, ``"tohoku"``, ``"tokyo"``,
-            ``"chubu"``, ``"kansai"``, ``"hokuriku"``, ``"shikoku"``, ``"kyushu"``,
-            and ``"okinawa"``.
+            ``"chubu"``, ``"chugoku"``, ``"kansai"``, ``"hokuriku"``,
+            ``"shikoku"``, ``"kyushu"``, and ``"okinawa"``.
 
         Returns
         -------
@@ -64,13 +65,14 @@ class epco:
             year with empty lines removed. For the Tohoku area files are saved
             under ``csv/juyo/toh`` with empty lines removed. For the Chubu area
             files are saved under ``csv/juyo/chb/YYYY`` with empty lines removed.
-            For the Kansai area files are saved under ``csv/juyo/kas/YYYY`` with
-            empty lines removed. For the Hokuriku area files are saved under
-            ``csv/hrk/YYYY`` with empty lines removed. For the Shikoku area
-            files are saved under ``csv/juyo/shi`` with empty lines removed. For
-            the Kyushu area files are saved under ``csv/juyo/kyu/YYYY`` with
-            empty lines removed. For the Okinawa area files are saved under
-            ``csv/juyo/oki/YYYY`` with empty lines removed.
+            For the Chugoku area files are saved under ``csv/juyo/cgk/YYYY`` with
+            empty lines removed. For the Kansai area files are saved under
+            ``csv/juyo/kas/YYYY`` with empty lines removed. For the Hokuriku area
+            files are saved under ``csv/hrk/YYYY`` with empty lines removed. For
+            the Shikoku area files are saved under ``csv/juyo/shi`` with empty
+            lines removed. For the Kyushu area files are saved under
+            ``csv/juyo/kyu/YYYY`` with empty lines removed. For the Okinawa area
+            files are saved under ``csv/juyo/oki/YYYY`` with empty lines removed.
         """
         if isinstance(date, str):
             date = dt.date.fromisoformat(date)
@@ -111,6 +113,24 @@ class epco:
             res.raise_for_status()
 
             target_dir = Path("csv") / "juyo" / "shi"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dest_path = target_dir / csv_name
+
+            encoding = chardet.detect(res.content).get("encoding") or "shift_jis"
+            text = res.content.decode(encoding)
+            lines = [line for line in text.splitlines() if line.strip()]
+            cleaned = "\n".join(lines) + "\n"
+            with open(dest_path, "w", encoding="utf-8") as dst:
+                dst.write(cleaned)
+            return [str(dest_path)]
+
+        if area == "chugoku":
+            csv_name = f"juyo-{year}.csv"
+            csv_url = urljoin(base_url, csv_name)
+            res = requests.get(csv_url, headers={"User-Agent": "Mozilla/5.0"})
+            res.raise_for_status()
+
+            target_dir = Path("csv") / "juyo" / "cgk" / f"{year}"
             target_dir.mkdir(parents=True, exist_ok=True)
             dest_path = target_dir / csv_name
 
