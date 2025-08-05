@@ -17,6 +17,10 @@ class epco:
     https://setsuden.tohoku-epco.co.jp/.
     The Tokyo area provides monthly ZIP archives at
     https://www.tepco.co.jp/forecast/.
+    The landing page for the Hokuriku area is
+    https://www.rikuden.co.jp/nw/denki-yoho/index.html.
+    The landing page for the Chugoku area is
+    https://www.energia.co.jp/nw/jukyuu/index.html.
     """
 
     BASE_URLS = {
