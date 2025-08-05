@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     scraper = epco()
 
-    for k in range(1):
+    for k in range(11):
         months_ago = date.today() - relativedelta(months=12 * k)
         result = scraper.juyo(months_ago, "tohoku")
         print(f"{months_ago}: {result}")
