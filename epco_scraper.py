@@ -11,7 +11,7 @@ import chardet
 # Earliest available year for each region based on existing CSV files.
 # | Region   | Earliest Year |
 # |----------|---------------|
-# | hokkaido | 2020          |
+# | hokkaido | 2016          |
 # | tohoku   | 2015          |
 # | tokyo    | 2008          |
 # | chubu    | 2019          |
